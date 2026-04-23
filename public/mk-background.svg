@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1200" viewBox="0 0 1920 1200" fill="none" aria-hidden="true">
+  <defs>
+    <linearGradient id="mk-bg-base" x1="0" y1="0" x2="1920" y2="1200" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#f4f2ef"/>
+      <stop offset="0.45" stop-color="#ebe8e3"/>
+      <stop offset="1" stop-color="#e3dfd8"/>
+    </linearGradient>
+    <linearGradient id="mk-bg-sheen" x1="200" y1="-80" x2="1100" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="0.35" stop-color="#ffffff" stop-opacity="0.08"/>
+      <stop offset="1" stop-color="#d6d3cd" stop-opacity="0"/>
+    </linearGradient>
+    <pattern id="mk-bg-grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M48 0H0V48" stroke="#c4bfb6" stroke-opacity="0.18" stroke-width="0.5"/>
+    </pattern>
+  </defs>
+  <rect width="1920" height="1200" fill="url(#mk-bg-base)"/>
+  <rect width="1920" height="1200" fill="url(#mk-bg-grid)"/>
+  <path d="M0 420 C 420 280, 780 520, 1120 380 S 1680 200, 1920 340 V1200H0Z" fill="url(#mk-bg-sheen)"/>
+  <g opacity="0.14" stroke="#1c1917" stroke-width="0.75">
+    <path d="M-40 880 L520 200"/>
+    <path d="M320 1240 L1520 -40"/>
+    <path d="M1280 1180 L1840 360"/>
+  </g>
+</svg>
