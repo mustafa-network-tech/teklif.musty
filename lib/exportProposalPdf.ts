@@ -16,24 +16,59 @@ function isLikelyIOS(): boolean {
   return nav.platform === "MacIntel" && (nav.maxTouchPoints ?? 0) > 1;
 }
 
+/** Klon üzerinde web fontlarını kaldırır; gstatic vb. yüzünden canvas "tainted" olup toDataURL patlamasını önler. */
+function useSystemFontsOnClone(clonedDoc: Document, clonedElement: HTMLElement): void {
+  const root =
+    (clonedDoc.getElementById("proposal-print-root") as HTMLElement | null) ??
+    (clonedElement.id === "proposal-print-root" ? clonedElement : null);
+  if (!root) return;
+  const stack = "Georgia, 'Times New Roman', 'Noto Serif', 'Liberation Serif', Times, serif";
+  root.classList.remove("font-proposal-doc");
+  root.style.fontFamily = stack;
+  root.querySelectorAll<HTMLElement>("h1,h2,h3,h4,p,li,span,div,section,header,footer,label").forEach((el) => {
+    el.style.fontFamily = stack;
+  });
+}
+
 /**
  * Önizleme DOM'unu A4 PDF blob'una çevirir; uzun içerikte sayfa böler.
  */
 async function captureElementToPdfBlob(element: HTMLElement): Promise<Blob> {
   const html2canvas = (await import("html2canvas")).default;
 
+  const narrow =
+    typeof window !== "undefined" && window.matchMedia && window.matchMedia("(max-width: 768px)").matches;
+  const dpr = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
+  const scale = narrow ? Math.min(1.35, dpr) : Math.min(2, dpr * 1.5);
+
+  element.scrollIntoView({ block: "nearest", behavior: "auto" });
+  await new Promise<void>((r) => requestAnimationFrame(() => r()));
+
   const canvas = await html2canvas(element, {
-    scale: Math.min(2, (window.devicePixelRatio || 1) * 1.5),
+    scale,
     useCORS: true,
+    allowTaint: false,
     logging: false,
     backgroundColor: "#ffffff",
     scrollX: 0,
-    scrollY: -window.scrollY,
-    windowWidth: document.documentElement.scrollWidth,
-    windowHeight: document.documentElement.scrollHeight,
+    scrollY: 0,
+    windowWidth: document.documentElement.clientWidth,
+    windowHeight: document.documentElement.clientHeight,
+    onclone: useSystemFontsOnClone,
   });
 
-  const imgData = canvas.toDataURL("image/png", 1.0);
+  let imgData: string;
+  try {
+    imgData = canvas.toDataURL("image/png", 1.0);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.includes("Tainted") || msg.includes("insecure") || msg.includes("SecurityError")) {
+      throw new Error(
+        "PDF çıktısı güvenlik nedeniyle engellendi (tarayıcı / font veya görsel kaynağı). Sayfayı yenileyip tekrar deneyin."
+      );
+    }
+    throw err;
+  }
   const pdf = new jsPDF({
     orientation: "portrait",
     unit: "mm",

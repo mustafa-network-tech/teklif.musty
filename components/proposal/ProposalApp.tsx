@@ -79,7 +79,8 @@ export function ProposalApp() {
       }
     } catch (e) {
       console.error(e);
-      alert("PDF oluşturulurken bir sorun oluştu. Lütfen tekrar deneyin.");
+      const detail = e instanceof Error && e.message ? `\n\n${e.message.slice(0, 220)}` : "";
+      alert(`PDF oluşturulurken bir sorun oluştu.${detail}`);
     } finally {
       setPdfBusy(false);
     }

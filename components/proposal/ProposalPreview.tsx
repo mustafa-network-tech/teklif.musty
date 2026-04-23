@@ -51,15 +51,17 @@ export const ProposalPreview = forwardRef<HTMLDivElement, ProposalPreviewProps>(
           style={{ backgroundImage: "url(/logo/logo.png)" }}
         />
         <div className="proposal-a4-inner relative z-10 mx-auto min-h-full w-full bg-white/76 px-8 py-9 sm:px-10 sm:py-10 print:bg-white/82">
-          <header className="flex items-start justify-between gap-6 border-b border-stone-900/10 pb-6">
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-stone-500">MK Digital Systems</p>
+          <header className="flex items-start justify-between gap-4 border-b border-stone-900/10 pb-6 sm:gap-6">
+            <div className="min-w-0 flex-1 pr-2">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-stone-500 sm:tracking-[0.22em]">
+                MK Digital Systems
+              </p>
               <h1 className="mt-2 text-2xl font-semibold tracking-tight text-stone-950 sm:text-[26px]">İş Teklifi</h1>
               <p className="mt-2 max-w-prose text-sm leading-relaxed text-stone-600">
                 {data.proposalTitle || "Teklif başlığı"}
               </p>
             </div>
-            <div className="text-right text-xs leading-relaxed text-stone-600">
+            <div className="shrink-0 text-right text-xs leading-relaxed text-stone-600">
               <p className="font-semibold text-stone-900">Teklif No</p>
               <p>{data.proposalNumber || "—"}</p>
               <p className="mt-3 font-semibold text-stone-900">Tarih</p>
