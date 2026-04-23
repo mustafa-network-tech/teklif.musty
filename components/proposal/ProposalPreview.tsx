@@ -37,7 +37,7 @@ export const ProposalPreview = forwardRef<HTMLDivElement, ProposalPreviewProps>(
   return (
     <div className="proposal-preview-shell rounded-2xl border border-stone-200/80 bg-stone-100/80 p-3 shadow-inner sm:p-4 lg:sticky lg:top-6">
       <p className="mb-2 text-center text-[10px] font-medium uppercase tracking-widest text-stone-400 print:hidden">
-        Canlı önizleme — A4 çıktıya uyarlanmıştır
+        Canlı önizleme — PNG kart ve PDF bu alandan üretilir
       </p>
       <div
         ref={ref}

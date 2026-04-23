@@ -7,6 +7,7 @@ import { getDefaultProposal } from "@/lib/defaultProposal";
 import { getSampleProposal } from "@/lib/sampleProposal";
 import { generateProposalNumber } from "@/lib/proposalNumber";
 import { exportProposalPdf } from "@/lib/exportProposalPdf";
+import { exportProposalCardPng } from "@/lib/exportProposalCard";
 import { sanitizeForFilename } from "@/lib/sanitizeFilename";
 import type { QuickFillItem } from "@/lib/quickFill";
 import { ProposalForm } from "@/components/proposal/ProposalForm";
@@ -16,7 +17,7 @@ import { DesktopActionPanel, MobileActionBar } from "@/components/proposal/Actio
 
 export function ProposalApp() {
   const [data, setData] = useState<ProposalData>(() => getDefaultProposal());
-  const [pdfBusy, setPdfBusy] = useState(false);
+  const [exportBusy, setExportBusy] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
 
   const patch = useCallback((partial: Partial<ProposalData>) => {
@@ -51,12 +52,47 @@ export function ProposalApp() {
     setData(getSampleProposal());
   }, []);
 
+  const handleCard = useCallback(async () => {
+    const el = previewRef.current;
+    if (!el) return;
+
+    try {
+      setExportBusy(true);
+
+      let proposalNumber = data.proposalNumber.trim();
+      if (!proposalNumber) {
+        proposalNumber = generateProposalNumber();
+        flushSync(() => {
+          setData((d) => ({ ...d, proposalNumber }));
+        });
+        await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+      }
+
+      const customerSlug = sanitizeForFilename(data.customerName, "musteri");
+      const numberSlug = sanitizeForFilename(proposalNumber, "nosayili");
+      const fileName = `mk-digital-systems-teklif-${customerSlug}-${numberSlug}.png`;
+
+      const outcome = await exportProposalCardPng(el, fileName);
+      if (outcome === "opened_in_browser") {
+        alert(
+          "Görsel yeni sekmede açıldı. Safari’de «Paylaş» ile kaydedebilir veya WhatsApp’tan gönderebilirsiniz."
+        );
+      }
+    } catch (e) {
+      console.error(e);
+      const detail = e instanceof Error && e.message ? `\n\n${e.message.slice(0, 220)}` : "";
+      alert(`Kart kaydedilirken bir sorun oluştu.${detail}`);
+    } finally {
+      setExportBusy(false);
+    }
+  }, [data.customerName, data.proposalNumber]);
+
   const handlePdf = useCallback(async () => {
     const el = previewRef.current;
     if (!el) return;
 
     try {
-      setPdfBusy(true);
+      setExportBusy(true);
 
       let proposalNumber = data.proposalNumber.trim();
       if (!proposalNumber) {
@@ -82,7 +118,7 @@ export function ProposalApp() {
       const detail = e instanceof Error && e.message ? `\n\n${e.message.slice(0, 220)}` : "";
       alert(`PDF oluşturulurken bir sorun oluştu.${detail}`);
     } finally {
-      setPdfBusy(false);
+      setExportBusy(false);
     }
   }, [data.customerName, data.proposalNumber]);
 
@@ -102,31 +138,33 @@ export function ProposalApp() {
 
           <div>
             <DesktopActionPanel
+              onCard={handleCard}
               onPdf={handlePdf}
               onPrint={handlePrint}
               onClear={handleClear}
               onSample={handleSample}
-              pdfBusy={pdfBusy}
+              exportBusy={exportBusy}
             />
             <ProposalPreview ref={previewRef} data={data} />
           </div>
         </main>
 
         <MobileActionBar
+          onCard={handleCard}
           onPdf={handlePdf}
           onPrint={handlePrint}
           onClear={handleClear}
           onSample={handleSample}
-          pdfBusy={pdfBusy}
+          exportBusy={exportBusy}
         />
 
-        {pdfBusy ? (
+        {exportBusy ? (
           <div
             className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-stone-900/15 backdrop-blur-[1px] print:hidden"
             aria-live="polite"
           >
             <div className="rounded-2xl border border-stone-200 bg-white px-5 py-4 text-sm font-medium text-stone-800 shadow-lg">
-              PDF hazırlanıyor…
+              Dışa aktarılıyor…
             </div>
           </div>
         ) : null}

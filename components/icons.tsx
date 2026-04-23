@@ -55,3 +55,12 @@ export function IconPlus({ className }: { className?: string }) {
     </svg>
   );
 }
+
+export function IconCard({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden>
+      <rect x="3" y="5" width="14" height="16" rx="2" />
+      <path d="M7 3h12a2 2 0 0 1 2 2v12" />
+    </svg>
+  );
+}
